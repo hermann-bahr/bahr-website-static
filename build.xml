@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="tei2html">
+    <loadfile property="DATAHASH" srcFile="./datahash.txt" failonerror="false"/>
+    <property name="DATAHASH" value=""/>
+    <property name="index" value="./data/editions/index.xml"/>
+    <property name="target" value="./html"/>
+    <property name="target_xml" value="./html/xml-view"/>
+    <delete>
+        <fileset dir="${target}" includes="*.html"/>
+    </delete>
+    <!-- Menübaum der alten Website, wird von Navigation, Footer, Brotkrumen und divGen gelesen -->
+    <xslt in="./xslt/make_menu.xsl" out="./data/menu.xml" style="./xslt/make_menu.xsl">
+        <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+        <classpath location="${basedir}/saxon/saxon9he.jar"/>
+    </xslt>
+    <xslt in="${index}" out="${target}/404.html" style="./xslt/404.xsl">
+        <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+        <param name="DATAHASH" expression="${DATAHASH}"/>
+        <classpath location="${basedir}/saxon/saxon9he.jar"/>
+    </xslt>
+    <xslt style="./xslt/editions.xsl"  basedir="./data/editions" destdir="${target}" includes="*.xml">
+        <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+        <param name="DATAHASH" expression="${DATAHASH}"/>
+        <classpath location="${basedir}/saxon/saxon9he.jar"/>
+    </xslt>
+    <xslt in="${index}" out="${target}/toc.html" style="./xslt/toc.xsl">
+        <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+        <param name="DATAHASH" expression="${DATAHASH}"/>
+        <classpath location="${basedir}/saxon/saxon9he.jar"/>
+    </xslt>
+    <xslt in="${index}" out="${target}/search.html" style="./xslt/search.xsl">
+        <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+        <param name="DATAHASH" expression="${DATAHASH}"/>
+        <classpath location="${basedir}/saxon/saxon9he.jar"/>
+    </xslt>
+    <replace dir="${target}" value="">
+        <include name="*.html"/>
+        <replacetoken> xmlns=""</replacetoken>
+    </replace>
+    <replace dir="${target}" value="">
+        <include name="*.html"/>
+        <replacetoken>xmlns:tei="http://www.tei-c.org/ns/1.0"</replacetoken>
+    </replace>
+   
+    <replace dir="${target}" value="">
+        <include name="*.html"/>
+        <replacetoken>xmlns="http://www.w3.org/1999/xhtml"</replacetoken>
+    </replace>
+    <copy todir="${target}" flatten="true">
+        <fileset dir="./data/">
+            <include name="**/*.xml"/>
+        </fileset>
+    </copy>
+</project>

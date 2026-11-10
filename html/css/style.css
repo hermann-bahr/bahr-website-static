@@ -1,0 +1,106 @@
+/* needed for interactive map in listplace.xsl */
+div#map {
+    height: 50vh;
+}
+
+/* Match bootstrap navlink focus outline color. */
+:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
+}
+
+.entity {
+    text-decoration: underline dotted;
+    cursor: pointer;
+}
+
+/* Add buffer above main frame for skip-link focus */
+#main {
+    scroll-margin-top: 1rem;
+}
+
+/* Stretch the container so the citation block sits just above the footer. */
+main:has(#how-to-cite) {
+    display: flex;
+    flex-direction: column;
+}
+
+main:has(#how-to-cite)>.container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+main:has(#how-to-cite)>.container> :has(> #how-to-cite) {
+    margin-top: auto;
+}
+
+/* ---- bahr-website-data ---- */
+
+/* Links auf alte Ziele: PDFs unter /sites/all/, alte Zeitleiste, unaufgelöste interne Links */
+a.ref.sites-all::after,
+a.ref.zeitleiste::after,
+a.ref.legacy::after {
+    font-family: "bootstrap-icons";
+    content: "\F1C5"; /* bi-box-arrow-up-right */
+    font-size: .7em;
+    margin-left: .2em;
+    vertical-align: super;
+}
+a.ref.sites-all::after {
+    content: "\F63E"; /* bi-file-earmark-pdf */
+}
+a.ref.legacy {
+    text-decoration-style: dashed;
+}
+
+/* Angaben zur beschriebenen Ausgabe */
+table.bibliografie {
+    width: auto;
+    max-width: 100%;
+}
+table.bibliografie th {
+    font-weight: 600;
+    white-space: nowrap;
+    padding-right: 1.5rem;
+    vertical-align: top;
+}
+
+/* Listen der Unterseiten und Einträge */
+ul.eintraege,
+ul.unterseiten {
+    list-style: none;
+    padding-left: 0;
+    columns: 2 20rem;
+    column-gap: 2rem;
+}
+ul.eintraege li,
+ul.unterseiten li {
+    break-inside: avoid;
+    padding: .2rem 0;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+ul.unterseiten {
+    font-size: 1.15rem;
+}
+
+/* Zwischenüberschriften, die im Original in Absätzen standen */
+span.hi-h3 {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin: 1rem 0 .5rem;
+}
+span.hi-h4 {
+    display: block;
+    font-size: 1.15rem;
+    font-weight: 500;
+    margin: .75rem 0 .4rem;
+}
+
+/* Bildergalerie (bilder.html) */
+.galerie .card-img-top {
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    object-position: top;
+}
