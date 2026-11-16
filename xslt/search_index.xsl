@@ -59,6 +59,13 @@
         <xsl:sequence select="' '"/>
     </xsl:template>
 
+    <!-- biblStruct: nur das Originalzitat (wie auf der Seite, bahr.xsl), sonst stünde jede Angabe doppelt im Index -->
+    <xsl:template match="tei:biblStruct[tei:note[@type = 'original']]" mode="text">
+        <xsl:sequence select="' '"/>
+        <xsl:apply-templates select="tei:note[@type = 'original'] | tei:relatedItem" mode="text"/>
+        <xsl:sequence select="' '"/>
+    </xsl:template>
+
     <!-- "1891-03-02" -> "2. März 1891" -->
     <xsl:function name="local:datum" as="xs:string">
         <xsl:param name="iso" as="xs:string"/>

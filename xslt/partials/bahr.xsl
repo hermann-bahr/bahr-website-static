@@ -5,10 +5,35 @@
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:bahr="http://bahr.univie.ac.at/ns"
     exclude-result-prefixes="#all">
 
     <!-- Menübaum, erzeugt von xslt/make_menu.xsl -->
     <xsl:variable name="menu" select="doc('../../data/menu.xml')"/>
+
+    <!-- Autorzeile: Viele Seiten beginnen mit einer „Überschrift“, die nur den Namen der Verfasser
+         nennt (in Drupal eine kursive Zwischenüberschrift). Sie ist kein Abschnitt: Sie wird als
+         Zeile unter dem Titel gesetzt und fehlt in „Auf dieser Seite“ (editions.xsl).
+         Erkannt wird die erste Überschrift der Seite, wenn sie ganz kursiv ist, nur aus den
+         Namen der Projektmitarbeiter besteht oder wenn ihr Abschnitt sonst leer ist. -->
+    <xsl:variable name="autor_namen" select="'Martin Anton Müller|Claus Pias|Gottfried Schnödl|Kurt Ifkovits'"/>
+    <xsl:function name="bahr:autorzeile" as="xs:boolean">
+        <xsl:param name="head" as="element(tei:head)?"/>
+        <xsl:sequence select="exists($head)
+            and exists($head/parent::tei:div/parent::tei:body)
+            and empty($head/parent::tei:div/preceding-sibling::tei:div[normalize-space(tei:head)])
+            and (
+                (: ein „Abschnitt“ ohne Text, nur Namen als Überschrift :)
+                not(normalize-space(string-join($head/parent::tei:div/(* except $head)//text(), '')))
+                or (count($head/*) = 1 and $head/tei:hi[@rend = 'italic']
+                    and not(normalize-space(string-join($head/text(), ''))))
+                or matches(normalize-space($head),
+                    concat('^(Herausgegeben von )?(', $autor_namen, ')((, | und | – )(', $autor_namen, '))*$'))
+            )"/>
+    </xsl:function>
+    <xsl:template match="tei:div/tei:head[bahr:autorzeile(.)]" priority="1">
+        <p class="autor"><xsl:value-of select="normalize-space(.)"/></p>
+    </xsl:template>
 
     <!-- Abschnitte; @xml:id sind Sprungziele für target="datei.xml#id" -->
     <xsl:template match="tei:div">
@@ -16,7 +41,7 @@
             <xsl:choose>
                 <xsl:when test="@xml:id"><xsl:attribute name="id" select="@xml:id"/></xsl:when>
                 <!-- Abschnitte der obersten Ebene ohne eigene id: Sprungziel für „Auf dieser Seite“ (editions.xsl) -->
-                <xsl:when test="parent::tei:body and normalize-space(tei:head)">
+                <xsl:when test="parent::tei:body and normalize-space(tei:head) and not(bahr:autorzeile(tei:head))">
                     <xsl:attribute name="id" select="concat('abschnitt-', count(preceding-sibling::tei:div[normalize-space(tei:head)]) + 1)"/>
                 </xsl:when>
             </xsl:choose>
@@ -81,6 +106,104 @@
     </xsl:template>
     <xsl:template match="tei:list[@type = 'gloss']/tei:item">
         <dd><xsl:apply-templates/></dd>
+    </xsl:template>
+
+    <!-- Literaturlisten (forschung__sekundaerliteratur.xml): listBibl je Jahr mit biblStruct.
+         Die Zerlegung in biblStruct ist heuristisch und nicht verlustfrei; angezeigt wird deshalb
+         das Originalzitat aus note[@type='original']. Aus der Struktur kommen Gliederung
+         (Jahre, Gruppen, relatedItem), Sprungziele (@xml:id) und die Links (ref, idno[@type='DOI']). -->
+    <xsl:template match="tei:listBibl[tei:biblStruct or tei:listBibl]">
+        <dl class="literatur">
+            <xsl:if test="normalize-space(tei:head)">
+                <dt><xsl:apply-templates select="tei:head/node()"/></dt>
+            </xsl:if>
+            <dd>
+                <ul><xsl:apply-templates select="tei:biblStruct | tei:listBibl"/></ul>
+            </dd>
+        </dl>
+    </xsl:template>
+    <!-- Gruppe innerhalb eines Jahres, etwa „Zum Tod“ -->
+    <xsl:template match="tei:listBibl/tei:listBibl" priority="1">
+        <li class="bibl-gruppe">
+            <xsl:apply-templates select="tei:head/node()"/>
+            <ul><xsl:apply-templates select="tei:biblStruct | tei:listBibl"/></ul>
+        </li>
+    </xsl:template>
+    <xsl:template match="tei:biblStruct">
+        <xsl:variable name="original" select="normalize-space(tei:note[@type = 'original'][1])"/>
+        <!-- alles, was im Zitat zum Link wird; ein DOI kann dort als bloße Nummer oder als Adresse stehen -->
+        <xsl:variable name="links" as="element()*">
+            <xsl:for-each select="(tei:analytic | tei:monogr)/tei:idno[@type = 'DOI'][normalize-space()]">
+                <xsl:variable name="doi" select="normalize-space()"/>
+                <xsl:variable name="adresse" select="(for $p in ('https://doi.org/', 'http://doi.org/', 'https://dx.doi.org/', 'http://dx.doi.org/')
+                    return concat($p, $doi))[contains($original, .)][1]"/>
+                <a class="ref doi" href="https://doi.org/{$doi}"><xsl:value-of select="($adresse, $doi)[1]"/></a>
+            </xsl:for-each>
+            <xsl:for-each select="tei:ref[normalize-space()]">
+                <a class="{normalize-space(concat('ref ', @type))}"
+                   href="{replace(@target, '^([^/:#]+)\.xml(#|$)', '$1.html$2')}"><xsl:value-of select="normalize-space()"/></a>
+            </xsl:for-each>
+        </xsl:variable>
+        <li class="{normalize-space(string-join(('bibl', @type, 'unvollstaendig'[current()/@status = 'incomplete']), ' '))}">
+            <xsl:if test="@xml:id"><xsl:attribute name="id" select="@xml:id"/></xsl:if>
+            <!-- „rosafarben“ laut Einleitung der Seite: Angaben unvollständig (style.css) -->
+            <xsl:if test="@status = 'incomplete'"><xsl:attribute name="title" select="'Angaben unvollständig'"/></xsl:if>
+            <xsl:choose>
+                <xsl:when test="$original">
+                    <xsl:call-template name="bibl_verlinken">
+                        <xsl:with-param name="text" select="$original"/>
+                        <xsl:with-param name="links" select="$links"/>
+                    </xsl:call-template>
+                    <!-- Links, deren Beschriftung im Zitat nicht vorkommt, anhängen -->
+                    <xsl:for-each select="$links[not(contains($original, string(.)))]">
+                        <xsl:text> [</xsl:text><xsl:copy-of select="."/><xsl:text>]</xsl:text>
+                    </xsl:for-each>
+                </xsl:when>
+                <!-- kein Originalzitat: die Felder in Dokumentreihenfolge, besser als nichts -->
+                <xsl:otherwise>
+                    <xsl:value-of select="(tei:analytic | tei:monogr | tei:series | tei:note)/normalize-space()[.]" separator=". "/>
+                    <xsl:for-each select="$links">
+                        <xsl:text> [</xsl:text><xsl:copy-of select="."/><xsl:text>]</xsl:text>
+                    </xsl:for-each>
+                </xsl:otherwise>
+            </xsl:choose>
+            <!-- Beiträge eines Bandes, Rezensionen -->
+            <xsl:if test="tei:relatedItem/tei:biblStruct">
+                <ol><xsl:apply-templates select="tei:relatedItem/tei:biblStruct"/></ol>
+            </xsl:if>
+        </li>
+    </xsl:template>
+    <!-- Setzt die Links in den Zitattext ein: der letzte Link an die letzte Stelle, an der seine
+         Beschriftung steht (sie stehen am Ende des Zitats; „Text“ o. ä. kann davor im Titel vorkommen),
+         die übrigen Links davor und danach. -->
+    <xsl:template name="bibl_verlinken">
+        <xsl:param name="text" as="xs:string"/>
+        <xsl:param name="links" as="element()*"/>
+        <xsl:variable name="link" select="$links[last()]"/>
+        <xsl:variable name="uebrige" select="$links[position() lt last()]"/>
+        <xsl:choose>
+            <xsl:when test="empty($link) or $text = ''">
+                <xsl:value-of select="$text"/>
+            </xsl:when>
+            <xsl:when test="contains($text, string($link))">
+                <xsl:variable name="teile" select="tokenize($text, replace(string($link), '[\\.\[\]{}()*+?^$|\-]', '\\$0'))"/>
+                <xsl:call-template name="bibl_verlinken">
+                    <xsl:with-param name="text" select="string-join($teile[position() lt last()], string($link))"/>
+                    <xsl:with-param name="links" select="$uebrige"/>
+                </xsl:call-template>
+                <xsl:copy-of select="$link"/>
+                <xsl:call-template name="bibl_verlinken">
+                    <xsl:with-param name="text" select="$teile[last()]"/>
+                    <xsl:with-param name="links" select="$uebrige"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:call-template name="bibl_verlinken">
+                    <xsl:with-param name="text" select="$text"/>
+                    <xsl:with-param name="links" select="$uebrige"/>
+                </xsl:call-template>
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <!-- Tabellen (139 davon sind table[@type='bibliografie']) -->

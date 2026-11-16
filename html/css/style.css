@@ -383,6 +383,14 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--link); }
     line-height: 1.45;
 }
 
+/* Autorzeile unter dem Titel (bahr.xsl, bahr:autorzeile) */
+.inhalt .autor { margin: -4px 0 20px; font-style: italic; color: var(--gedaempft); }
+
+/* Literaturliste: Einträge mit unvollständigen Angaben, rosa hinterlegt (biblStruct/@status="incomplete").
+   Nur der eigene Text, nicht die Unterliste mit Beiträgen/Rezensionen. */
+.inhalt li.bibl.unvollstaendig { background: #f9d3dc; box-shadow: -4px 0 0 #f9d3dc, 4px 0 0 #f9d3dc; }
+.inhalt li.bibl.unvollstaendig > ol { background: var(--grund); box-shadow: -4px 0 0 var(--grund), 4px 0 0 var(--grund); }
+
 /* Zwischenüberschriften, die im Original in Absätzen standen */
 span.hi-h3, span.hi-h4 {
     display: block;

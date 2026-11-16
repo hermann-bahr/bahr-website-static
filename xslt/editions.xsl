@@ -3,8 +3,9 @@
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:bahr="http://bahr.univie.ac.at/ns"
     version="2.0"
-    exclude-result-prefixes="xsl tei xs">
+    exclude-result-prefixes="xsl tei xs bahr">
 
     <xsl:import href="./partials/shared.xsl"/>
     <xsl:import href="./partials/html_navbar.xsl"/>
@@ -31,8 +32,8 @@
     <!-- reine Menüknoten (bibliografie, briefe, forschung): kein Text, nur Unterseiten -->
     <xsl:variable name="ist_uebersicht" select="not(normalize-space(string-join(.//tei:body//text(), '')))
         and not(.//tei:body//tei:divGen) and exists($self/item)"/>
-    <!-- Abschnitte mit Überschrift, für „Auf dieser Seite“ -->
-    <xsl:variable name="abschnitte" select="/tei:TEI/tei:text/tei:body/tei:div[normalize-space(tei:head)]"/>
+    <!-- Abschnitte mit Überschrift, für „Auf dieser Seite“; die Autorzeile (bahr.xsl) ist keiner -->
+    <xsl:variable name="abschnitte" select="/tei:TEI/tei:text/tei:body/tei:div[normalize-space(tei:head)][not(bahr:autorzeile(tei:head))]"/>
     <!-- Kritische Schriften: Zeile der Bandübersicht (Umschlag, Bandnummer, Herausgeber), die auf diese Seite zeigt -->
     <xsl:variable name="band" select="(doc('../data/editions/kritische-schriften.xml')//tei:row[.//tei:ref/@target = $teiSource])[1]"/>
     <!-- das PDF des Bandes: der erste PDF-Link der Seite; nur bei Bänden, sonst wäre es irgendein PDF -->
@@ -195,7 +196,7 @@
                                 <h2 class="label">Auf dieser Seite</h2>
                                 <ul class="rail-liste">
                                     <xsl:for-each select="$abschnitte">
-                                        <li><a href="#{(@xml:id, concat('abschnitt-', position()))[1]}"><xsl:value-of select="normalize-space(tei:head)"/></a></li>
+                                        <li><a href="#{(@xml:id, concat('abschnitt-', count(preceding-sibling::tei:div[normalize-space(tei:head)]) + 1))[1]}"><xsl:value-of select="normalize-space(tei:head)"/></a></li>
                                     </xsl:for-each>
                                 </ul>
                             </nav>
