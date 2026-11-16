@@ -39,8 +39,7 @@
                                     </xsl:otherwise>
                                 </xsl:choose>
                             </xsl:for-each>
-                            <!-- Suche erst einblenden, wenn es einen Typesense-Index gibt:
-                            <li class="nav-item"><a title="Suche" class="nav-link" href="search.html">Suche</a></li> -->
+                            <li class="nav-item"><a class="nav-link" href="search.html"><i class="bi bi-search" aria-hidden="true"/> Suche</a></li>
                         </ul>
                     </div>
                 </div>

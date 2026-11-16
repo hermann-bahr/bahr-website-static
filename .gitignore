@@ -2,6 +2,7 @@
 datahash.txt
 *.html
 html/*.xml
+html/search-index.json
 html/beacon.txt
 /html/oai-pmh
 data/imprint.xml

@@ -18,7 +18,8 @@
         <param name="DATAHASH" expression="${DATAHASH}"/>
         <classpath location="${basedir}/saxon/saxon9he.jar"/>
     </xslt>
-    <xslt style="./xslt/editions.xsl"  basedir="./data/editions" destdir="${target}" includes="*.xml">
+    <!-- TEI-bahr-zeitleiste.xml ist keine Seite, sondern wird in leben.html eingesetzt (bahr.xsl) -->
+    <xslt style="./xslt/editions.xsl"  basedir="./data/editions" destdir="${target}" includes="*.xml" excludes="TEI-bahr-zeitleiste.xml">
         <factory name="net.sf.saxon.TransformerFactoryImpl"/>
         <param name="DATAHASH" expression="${DATAHASH}"/>
         <classpath location="${basedir}/saxon/saxon9he.jar"/>
@@ -31,6 +32,12 @@
     <xslt in="${index}" out="${target}/search.html" style="./xslt/search.xsl">
         <factory name="net.sf.saxon.TransformerFactoryImpl"/>
         <param name="DATAHASH" expression="${DATAHASH}"/>
+        <classpath location="${basedir}/saxon/saxon9he.jar"/>
+    </xslt>
+    <!-- Index für die Suche im Browser (html/js/search.js, FlexSearch): Seiten und Zeitleiste;
+         force: hängt von allen Dateien in data/editions ab, nicht vom Stylesheet -->
+    <xslt in="./xslt/search_index.xsl" out="${target}/search-index.json" style="./xslt/search_index.xsl" force="true">
+        <factory name="net.sf.saxon.TransformerFactoryImpl"/>
         <classpath location="${basedir}/saxon/saxon9he.jar"/>
     </xslt>
     <replace dir="${target}" value="">

@@ -58,7 +58,7 @@
                             </thead>
                             <tbody>
                                 <xsl:for-each
-                                    select="collection('../data/editions?select=*.xml')//tei:TEI">
+                                    select="collection('../data/editions?select=*.xml')//tei:TEI[not(@xml:id = 'zeitleiste')]">
                                     <xsl:variable name="link2doc">
                                         <xsl:value-of select="concat(@xml:id, '.html')"/>
                                     </xsl:variable>

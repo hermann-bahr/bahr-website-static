@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Suchseite. Die Suche läuft vollständig im Browser: html/js/search.js lädt
+     search-index.json (erzeugt von xslt/search_index.xsl) und baut daraus einen FlexSearch-Index. -->
 <xsl:stylesheet
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:tei="http://www.tei-c.org/ns/1.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     version="2.0"
     exclude-result-prefixes="xsl tei xs">
-    
+
     <xsl:import href="./partials/html_navbar.xsl"/>
     <xsl:import href="./partials/html_head.xsl"/>
     <xsl:import href="./partials/html_footer.xsl"/>
-    <xsl:import href="./partials/typesense_libs.xsl"/>
     <xsl:output encoding="UTF-8" media-type="text/html" method="html" version="5.0" indent="yes" omit-xml-declaration="yes"/>
 
     <xsl:template match="/">
-        <xsl:variable name="doc_title" select="'Volltextsuche'"/>
+        <xsl:variable name="doc_title" select="'Suche'"/>
         <html class="h-100" lang="{$default_lang}">
             <head>
                 <xsl:call-template name="html_head">
@@ -38,66 +39,35 @@
                             </li>
                         </ol>
                     </nav>
-                    <div class="container-fluid d-md-px-5 pb-4">
+                    <!-- der Daten-Hash in der Adresse sorgt dafür, dass nach einem neuen Build
+                         nicht der alte Index aus dem Browser-Cache verwendet wird -->
+                    <div class="container suche pb-5" id="suche"
+                        data-index="search-index.json{if ($DATAHASH) then concat('?v=', $DATAHASH) else ''}">
                         <h1 class="display-5 text-center">
                             <xsl:value-of select="$doc_title"/>
                         </h1>
-                        <div class="text-center p-3">
-                            <div class="d-flex gap-2 align-items-center mb-3">
-                                <button id="filter-button" aria-label="filter"
-                                    class="btn btn-outline-secondary d-md-none d-flex align-items-center justify-content-center flex-shrink-0"
-                                    style="width: 2rem; height: 2rem; padding: 0;" type="button"
-                                    data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
-                                    <i class="bi bi-sliders" aria-hidden="true"/>
-                                </button>
-                                <div class="flex-grow-1" id="searchbox"/>
-                            </div>
-                            <div id="stats-container"/>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div id="current-refinements" class="col-auto"/>
-                                <div id="clear-refinements" class="col-auto"/>
-                            </div>
+                        <form class="suche-form" role="search" action="search.html" method="get">
+                            <input type="search" id="suche-q" name="q" class="form-control form-control-lg"
+                                placeholder="Seiten und Zeitleiste durchsuchen …"
+                                aria-label="Seiten und Zeitleiste durchsuchen" autocomplete="off"/>
+                        </form>
+                        <div class="suche-arten" role="group" aria-label="Treffer eingrenzen">
+                            <button type="button" class="suche-chip" data-art="" aria-pressed="true">Alle <span class="suche-n"/></button>
+                            <button type="button" class="suche-chip" data-art="s" aria-pressed="false">Seiten <span class="suche-n"/></button>
+                            <button type="button" class="suche-chip" data-art="z" aria-pressed="false">Zeitleiste <span class="suche-n"/></button>
                         </div>
-
-                        <div class="row">
-                            <!-- Facets column - sticky -->
-                            <div class="col-md-3">
-                                <div class="d-none d-md-block sticky-sidebar"
-                                    id="refinements-section">
-                                    <h2 class="visually-hidden">Facets</h2>
-
-                                    <!-- Entitäten Section -->
-                                    <div class="card shadow-sm mb-3">
-                                        <div class="card-body bg-light-blue">
-                                            <h3 class="card-title h5 fw-bold mb-3">
-                                                <i class="bi bi-tags"/> Entitäten </h3>
-                                            <div id="rf-persons" class="pb-3"/>
-                                            <div id="rf-places" class="pb-3"/>
-                                            <div id="rf-works" class="pb-3"/>
-                                            <div id="rf-bibl" class="pb-3"/>
-                                        </div>
-                                    </div>
-                                    <!-- Sortierung Section -->
-                                    <div class="card shadow-sm mb-3">
-                                        <div class="card-body bg-light-blue">
-                                            <h3 class="card-title h5 fw-bold mb-3">
-                                                <i class="bi bi-sort-down"/> Sortierung </h3>
-                                            <div id="sort-by"/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Results column - scrollable -->
-                            <div class="col-md-9">
-                                <div id="hits" style="max-height: 70vh; overflow-y: auto;"/>
-                                <div id="pagination" class="p-3"/>
-                            </div>
+                        <p id="suche-status" class="suche-status" aria-live="polite">Der Suchindex wird geladen …</p>
+                        <noscript>
+                            <p class="suche-status">Die Suche benötigt JavaScript.</p>
+                        </noscript>
+                        <ol id="suche-treffer" class="suche-treffer"/>
+                        <div class="text-center">
+                            <button type="button" id="suche-mehr" class="btn btn-outline-secondary" hidden="hidden">Weitere Treffer anzeigen</button>
                         </div>
                     </div>
                 </main>
                 <xsl:call-template name="html_footer"/>
-                <xsl:call-template name="typesense_libs"/>
+                <script src="vendor/flexsearch/flexsearch.bundle.min.js"/>
                 <script src="js/search.js"/>
             </body>
         </html>

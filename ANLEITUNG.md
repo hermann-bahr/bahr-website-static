@@ -134,7 +134,7 @@ Die HTML-Seite heißt dann `<xml:id>.html`.
 | `figure`/`graphic`/`figDesc` | 92 | `graphic/@url="files/…"`, auch `graphic` direkt im Absatz |
 | `ref/@target` | 4173 | siehe unten |
 | `divGen[@type='eintraege']` | 9 | hier die Liste der Einträge (`type="eintrag"`) einsetzen |
-| `divGen[@type='zeitleiste']` | 1 | in `leben.xml`, Daten in [bahr-zeitleiste](https://github.com/martinantonmueller/bahr-zeitleiste) |
+| `divGen[@type='zeitleiste']` | 1 | in `leben.xml`, hier die Zeitleiste aus `TEI-bahr-zeitleiste.xml` einsetzen |
 
 Es gibt keine `note`, `rs`, `pb` oder Register im Text. Die Register des Cookiecutters
 (`listperson` usw.) entfallen deshalb.
@@ -301,7 +301,7 @@ das Hauptmenü ersetzen. Untermenüs zeigen nur echte Menüpunkte, keine Einträ
             </xsl:otherwise>
         </xsl:choose>
     </xsl:for-each>
-    <!-- optional: <li class="nav-item"><a class="nav-link" href="search.html">Suche</a></li> -->
+    <li class="nav-item"><a class="nav-link" href="search.html">Suche</a></li>
 </ul>
 ```
 
@@ -384,12 +384,24 @@ Bild eines Eintrags ist
 `doc(concat('../../data/editions/', @id, '.xml'))//tei:graphic[1]/@url`. Dafür in `bahr.xsl` ein
 eigenes Template für `divGen[ancestor::tei:TEI/@xml:id = 'bilder']` anlegen.
 
-### Volltextsuche (Typesense)
+### Volltextsuche (FlexSearch)
 
-`pyscripts/make_ts_index.py` liest bereits `data/editions/*.xml`. Die Felder im Schema (Titel, Jahr
-usw.) müssen an die Daten angepasst werden. Für Bibliografie-Einträge bieten sich die Angaben aus
-`bibl[@type='beschriebene-ausgabe']` an. Solange es keinen Index gibt, „Suche“ aus der Navigation
-weglassen.
+Die Suche (`search.html`) läuft ohne Server im Browser, mit
+[FlexSearch](https://github.com/nextapps-de/flexsearch) (`html/vendor/flexsearch/`). Typesense wird
+nicht mehr verwendet, es braucht weder einen API-Schlüssel noch einen eigenen Indexlauf.
+
+- `xslt/search_index.xsl` schreibt beim `ant`-Lauf `html/search-index.json`: einen Datensatz pro
+  Seite (Titel, Menüpfad, Text aus `body`) und einen pro Ereignis der Zeitleiste (Titel, Datum,
+  Kategorie, Text und Quelle). Treffer der Zeitleiste zeigen auf den Eintrag in
+  `leben.html#<xml:id>`.
+- `html/js/search.js` lädt die Datei, baut daraus den Index und zeigt die Treffer mit Textausschnitt
+  an. Gesucht wird nach Wortanfängen, alle Begriffe müssen vorkommen, Groß-/Kleinschreibung,
+  Diakritika und ß/ss spielen keine Rolle. Die Treffer lassen sich auf Seiten oder Zeitleiste
+  eingrenzen, die Suche steht in der Adresse (`search.html?q=…&art=z`).
+- Weil der Index mit `fetch` geladen wird, funktioniert die Suche nur über einen Webserver, lokal
+  zum Beispiel mit `python3 -m http.server -d html`.
+- Sollen weitere Felder durchsucht werden (etwa `bibl[@type='beschriebene-ausgabe']`), genügt es,
+  sie in `search_index.xsl` an den Text anzuhängen.
 
 ## 8. Bekannte Lücken in den Daten
 
@@ -401,10 +413,12 @@ Details stehen in `convert-report.txt`.
    Wird der alte Server abgeschaltet, sind sie tot. Die PDFs müssen vorher gesichert und mit
    ins Code-Repo oder auf einen Datei-Server genommen werden. Danach die Links umschreiben, am
    einfachsten im `ref`-Template von `bahr.xsl` für `@type='sites-all'`.
-2. **Zeitleiste** (`leben.xml`, `divGen[@type='zeitleiste']`, 2 Links mit `@type='zeitleiste'`):
-   Die Daten liegen in [bahr-zeitleiste](https://github.com/martinantonmueller/bahr-zeitleiste).
-   `bahr.xsl` setzt vorerst nur einen Link dorthin. Eine richtige Darstellung bräuchte einen
-   zusätzlichen Fetch-Schritt und ein eigenes Stylesheet.
+2. **Zeitleiste** (`leben.xml`, `divGen[@type='zeitleiste']`, 2 Links mit `@type='zeitleiste'`): erledigt.
+   Die Daten liegen als `editions/TEI-bahr-zeitleiste.xml` in bahr-website-data. `bahr.xsl` (Template
+   `zeitleiste`) setzt alle Ereignisse nach Jahren gruppiert in `leben.html` ein, `html/js/zeitleiste.js`
+   ergänzt Suche, Kategorienfilter und die Sprungleiste, die Gestaltung steht in `html/css/style.css`
+   (`.zl-…`). Die Datei wird in `build.xml` und `toc.xsl` ausgenommen, weil sie
+   keine eigene Seite ist; die Suche führt ihre Ereignisse als eigene Treffer (Abschnitt 7). Die beiden alten Links (`…/node/27934`) zeigen auf `leben.html#node27934`.
 3. **Textverzeichnis:** Der Menüpunkt wurde bewusst ausgelassen, weil das Textverzeichnis unter
    <https://bahr-textverzeichnis.acdh.oeaw.ac.at/> liegt. Ein interner Link (`/textverzeichnis` in
    `bibliografie__zur-bibliografie.xml`) zeigt noch auf die alte Seite.

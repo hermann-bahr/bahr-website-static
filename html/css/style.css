@@ -104,3 +104,262 @@ span.hi-h4 {
     object-fit: cover;
     object-position: top;
 }
+
+/* ---- Zeitleiste (leben.html, xslt/partials/bahr.xsl, js/zeitleiste.js) ---- */
+.zl {
+    --zl-offset: 12rem; /* Höhe der fixierten Leiste, wird von zeitleiste.js gemessen */
+    --zl-akzent: var(--bs-primary);
+    margin-top: 1.5rem;
+}
+
+/* fixierte Leiste: Suche, Sprungleiste, Kategorien */
+.zl-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: .6rem 0 .5rem;
+    background: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.zl-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+.zl-controls #zl-q {
+    flex: 1 1 12rem;
+    width: auto;
+}
+.zl-controls #zl-jahr {
+    flex: 0 0 auto;
+    width: auto;
+}
+.zl-anzahl {
+    font-size: .875rem;
+    color: var(--bs-secondary-color);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+#zl-reset {
+    padding: 0;
+    white-space: nowrap;
+}
+/* ohne JavaScript bleiben nur die Sprunganker übrig */
+.zl:not(.zl-js) .zl-controls,
+.zl:not(.zl-js) .zl-typen {
+    display: none;
+}
+
+/* Sprungleiste: ein Balken pro Jahr */
+.zl-hist {
+    margin-top: .5rem;
+}
+.zl-balken,
+.zl-dekaden {
+    display: grid;
+    grid-template-columns: repeat(var(--zl-cols), minmax(0, 1fr));
+}
+.zl-balken {
+    height: 3rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.zl-balken a {
+    position: relative;
+    display: block;
+    --f: 1;
+}
+/* blass: alle Einträge des Jahres; kräftig: Anteil der aktuellen Auswahl */
+.zl-balken a::before,
+.zl-balken a::after {
+    content: "";
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: 0;
+    height: var(--h);
+    min-height: 2px;
+    border-radius: 1px 1px 0 0;
+    background: var(--zl-akzent);
+}
+.zl-balken a::before {
+    opacity: .2;
+}
+.zl-balken a::after {
+    height: calc(var(--h) * var(--f));
+}
+.zl-balken a.zl-null::after {
+    display: none;
+}
+.zl-balken a:hover,
+.zl-balken a:focus-visible {
+    background: var(--bs-secondary-bg);
+}
+.zl-balken a.zl-aktuell {
+    background: var(--bs-secondary-bg);
+    box-shadow: inset 0 -2px 0 var(--bs-body-color);
+}
+.zl-balken a.zl-aktuell::after {
+    background: var(--bs-body-color);
+}
+.zl-dekaden a {
+    padding: .1rem 0 0 .2rem;
+    border-left: 1px solid var(--bs-border-color);
+    font-size: .75rem;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+    overflow: hidden;
+}
+.zl-dekaden a:hover {
+    color: var(--bs-body-color);
+    text-decoration: underline;
+}
+
+/* Kategorien */
+.zl-typen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin-top: .5rem;
+}
+.zl-chip {
+    padding: .15rem .6rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 1rem;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    font-size: .8125rem;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+.zl-chip:hover {
+    border-color: var(--bs-body-color);
+}
+.zl-chip[aria-pressed="true"] {
+    background: var(--bs-body-color);
+    border-color: var(--bs-body-color);
+    color: var(--bs-body-bg);
+}
+.zl-chip .zl-n {
+    margin-left: .15rem;
+    opacity: .65;
+    font-variant-numeric: tabular-nums;
+}
+.zl-chip.zl-null:not([aria-pressed="true"]) {
+    opacity: .45;
+}
+
+.zl-hinweis {
+    margin: .75rem 0 0;
+    font-size: .875rem;
+    color: var(--bs-secondary-color);
+}
+.zl-leer {
+    margin: 2rem 0;
+    text-align: center;
+    color: var(--bs-secondary-color);
+}
+
+/* Jahre und Einträge */
+.zl-jahr,
+.zl-event {
+    scroll-margin-top: var(--zl-offset);
+}
+.zl-jahr > h2 {
+    margin: 2.5rem 0 .5rem;
+    font-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
+}
+.zl-event {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 44rem);
+    column-gap: 1.25rem;
+    padding: .75rem 0;
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+.zl-event[hidden] {
+    display: none;
+}
+.zl-event:target {
+    background: var(--bs-secondary-bg);
+    box-shadow: -.75rem 0 0 var(--bs-secondary-bg), .75rem 0 0 var(--bs-secondary-bg);
+}
+.zl-datum {
+    padding-top: .1rem;
+    font-size: .875rem;
+    color: var(--bs-secondary-color);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.zl-datum time {
+    white-space: nowrap;
+}
+.zl-inhalt h3 {
+    margin: 0 0 .35rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+.zl-inhalt h3 a {
+    color: inherit;
+    text-decoration: none;
+}
+.zl-inhalt h3 a:hover {
+    text-decoration: underline;
+}
+.zl-typ {
+    margin-left: .35rem;
+    padding: .05rem .45rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 1rem;
+    font-size: .6875rem;
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+    white-space: nowrap;
+    vertical-align: .1em;
+}
+.zl-inhalt p,
+.zl-absatz {
+    margin: 0 0 .5rem;
+}
+.zl-inhalt blockquote {
+    margin: .4rem 0 .6rem;
+    padding-left: .9rem;
+    border-left: 3px solid var(--bs-border-color);
+    font-style: italic;
+}
+.zl-inhalt blockquote > p:last-child {
+    margin-bottom: 0;
+}
+.zl-inhalt .zl-quelle {
+    margin-bottom: 0;
+    font-size: .8125rem;
+    color: var(--bs-secondary-color);
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 575.98px) {
+    .zl-balken {
+        height: 2.25rem;
+    }
+    .zl-balken a::before,
+    .zl-balken a::after {
+        left: 0;
+        right: 1px;
+    }
+    /* Kategorien in einer Zeile zum Wischen, damit die Leiste niedrig bleibt */
+    .zl-typen {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .zl-event {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .zl-datum {
+        text-align: left;
+        margin-bottom: .15rem;
+    }
+}
