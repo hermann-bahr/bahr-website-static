@@ -13,7 +13,13 @@
     <!-- Abschnitte; @xml:id sind Sprungziele für target="datei.xml#id" -->
     <xsl:template match="tei:div">
         <div>
-            <xsl:if test="@xml:id"><xsl:attribute name="id" select="@xml:id"/></xsl:if>
+            <xsl:choose>
+                <xsl:when test="@xml:id"><xsl:attribute name="id" select="@xml:id"/></xsl:when>
+                <!-- Abschnitte der obersten Ebene ohne eigene id: Sprungziel für „Auf dieser Seite“ (editions.xsl) -->
+                <xsl:when test="parent::tei:body and normalize-space(tei:head)">
+                    <xsl:attribute name="id" select="concat('abschnitt-', count(preceding-sibling::tei:div[normalize-space(tei:head)]) + 1)"/>
+                </xsl:when>
+            </xsl:choose>
             <xsl:apply-templates/>
         </div>
     </xsl:template>
@@ -79,10 +85,13 @@
 
     <!-- Tabellen (139 davon sind table[@type='bibliografie']) -->
     <xsl:template match="tei:table">
-        <table class="table table-sm {@type}">
-            <xsl:apply-templates select="tei:head"/>
-            <tbody><xsl:apply-templates select="tei:row"/></tbody>
-        </table>
+        <!-- der Rahmen lässt breite Tabellen auf schmalen Schirmen seitlich rollen -->
+        <div class="tabelle">
+            <table class="{normalize-space(concat('table ', @type))}">
+                <xsl:apply-templates select="tei:head"/>
+                <tbody><xsl:apply-templates select="tei:row"/></tbody>
+            </table>
+        </div>
     </xsl:template>
     <xsl:template match="tei:table/tei:head">
         <caption><xsl:apply-templates/></caption>
@@ -100,45 +109,62 @@
 
     <!-- Blockzitate (aus HTML-blockquote) -->
     <xsl:template match="tei:quote">
-        <blockquote class="blockquote"><xsl:apply-templates/></blockquote>
+        <blockquote><xsl:apply-templates/></blockquote>
     </xsl:template>
 
     <!-- Bilder: url="files/…" verweist auf html/files/… -->
     <xsl:template match="tei:figure">
-        <figure class="figure d-block">
+        <figure>
             <xsl:apply-templates select="tei:graphic"/>
             <xsl:if test="tei:figDesc">
-                <figcaption class="figure-caption"><xsl:apply-templates select="tei:figDesc/node()"/></figcaption>
+                <figcaption><xsl:apply-templates select="tei:figDesc/node()"/></figcaption>
             </xsl:if>
         </figure>
     </xsl:template>
     <xsl:template match="tei:graphic">
-        <img src="{@url}" alt="{normalize-space(../tei:figDesc)}" class="img-fluid" loading="lazy"/>
+        <img src="{@url}" alt="{normalize-space(../tei:figDesc)}" loading="lazy"/>
     </xsl:template>
 
     <!-- Generierte Inhalte -->
     <xsl:template match="tei:divGen[@type = 'eintraege']">
         <xsl:variable name="id" select="ancestor::tei:TEI/@xml:id"/>
+        <xsl:variable name="eintraege" select="$menu//item[@id = $id]/item[@eintrag = 'true']"/>
+        <!-- „Titel (1924)“ oder „Titel [1896]“: die Klammer am Ende wird als Jahr rechts ausgerichtet -->
+        <xsl:variable name="jahr" select="'^(.+?)\s*[\(\[]([^\(\)\[\]]*\d[^\(\)\[\]]*)[\)\]]$'"/>
+        <div class="liste-kopf">
+            <span><xsl:value-of select="count($eintraege)"/> Einträge</span>
+            <xsl:if test="$eintraege[matches(normalize-space(label), $jahr)]"><span>Jahr</span></xsl:if>
+        </div>
         <ul class="eintraege">
-            <xsl:for-each select="$menu//item[@id = $id]/item[@eintrag = 'true']">
-                <li><a href="{@href}"><xsl:value-of select="label"/></a></li>
+            <xsl:for-each select="$eintraege">
+                <xsl:variable name="l" select="normalize-space(label)"/>
+                <li>
+                    <a href="{@href}">
+                        <xsl:choose>
+                            <xsl:when test="matches($l, $jahr)">
+                                <span class="e-titel"><xsl:value-of select="replace($l, $jahr, '$1')"/></span>
+                                <xsl:text> </xsl:text>
+                                <span class="e-jahr"><xsl:value-of select="replace($l, $jahr, '$2')"/></span>
+                            </xsl:when>
+                            <xsl:otherwise><span class="e-titel"><xsl:value-of select="$l"/></span></xsl:otherwise>
+                        </xsl:choose>
+                    </a>
+                </li>
             </xsl:for-each>
         </ul>
     </xsl:template>
     <!-- Bilder: Galerie mit dem ersten Bild jedes Eintrags statt einer Liste -->
     <xsl:template match="tei:divGen[@type = 'eintraege'][ancestor::tei:TEI/@xml:id = 'bilder']" priority="1">
-        <div class="galerie row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-3 my-3">
+        <div class="kacheln galerie">
             <xsl:for-each select="$menu//item[@id = 'bilder']/item[@eintrag = 'true']">
                 <xsl:variable name="eintrag" select="doc(concat('../../data/editions/', @id, '.xml'))"/>
                 <xsl:variable name="bild" select="($eintrag//tei:body//tei:graphic)[1]/@url"/>
-                <div class="col">
-                    <a href="{@href}" class="card h-100 text-decoration-none">
-                        <xsl:if test="$bild">
-                            <img src="{$bild}" alt="" class="card-img-top" loading="lazy"/>
-                        </xsl:if>
-                        <span class="card-body small"><xsl:value-of select="label"/></span>
-                    </a>
-                </div>
+                <a href="{@href}">
+                    <xsl:if test="$bild">
+                        <img src="{$bild}" alt="" loading="lazy"/>
+                    </xsl:if>
+                    <span class="kachel-titel"><xsl:value-of select="label"/></span>
+                </a>
             </xsl:for-each>
         </div>
     </xsl:template>
@@ -194,9 +220,9 @@
         <div class="zl" id="zeitleiste" data-total="{count($events)}">
             <div class="zl-bar">
                 <div class="zl-controls">
-                    <input type="search" id="zl-q" class="form-control form-control-sm"
+                    <input type="search" id="zl-q" class="input"
                         placeholder="Zeitleiste durchsuchen …" aria-label="Zeitleiste durchsuchen" autocomplete="off"/>
-                    <select id="zl-jahr" class="form-select form-select-sm" aria-label="Zu einem Jahr springen">
+                    <select id="zl-jahr" class="input" aria-label="Zu einem Jahr springen">
                         <option value="">Jahr …</option>
                         <xsl:for-each select="distinct-values($jahre)">
                             <xsl:sort select="."/>
@@ -205,7 +231,7 @@
                     </select>
                     <span id="zl-anzahl" class="zl-anzahl" aria-live="polite">
                         <xsl:value-of select="count($events)"/> Einträge</span>
-                    <button type="button" id="zl-reset" class="btn btn-sm btn-link" hidden="hidden">Filter zurücksetzen</button>
+                    <button type="button" id="zl-reset" class="btn btn-ghost" hidden="hidden">Filter zurücksetzen</button>
                 </div>
                 <!-- Sprungleiste: ein Balken pro Jahr, Höhe = Zahl der Einträge -->
                 <nav class="zl-hist" aria-label="Sprung zu einem Jahr" style="--zl-cols: {$max - $min + 1}">

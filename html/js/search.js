@@ -12,10 +12,12 @@
   const status = document.getElementById("suche-status");
   const list = document.getElementById("suche-treffer");
   const mehr = document.getElementById("suche-mehr");
-  const chips = Array.from(root.querySelectorAll(".suche-chip"));
+  const boxes = Array.from(document.querySelectorAll(".suche-art"));
+  const basis = root.dataset.base || "";
 
   const PRO_SEITE = 20;
   const MARKS = "̀-ͯ"; // kombinierende Diakritika
+  // art: "" = alles, "s" = nur Seiten, "z" = nur Zeitleiste, "-" = nichts angehakt
   const state = { q: "", art: "", gezeigt: PRO_SEITE };
   let data = null;
   let textIndex = null;
@@ -39,7 +41,7 @@
   function writeUrl() {
     const p = new URLSearchParams();
     if (state.q.trim()) p.set("q", state.q.trim());
-    if (state.art) p.set("art", state.art);
+    if (state.art === "s" || state.art === "z") p.set("art", state.art);
     const qs = p.toString();
     history.replaceState(null, "", location.pathname + (qs ? "?" + qs : ""));
   }
@@ -134,14 +136,13 @@
       href += "#:~:text=" + encodeURIComponent(s.wort).replace(/-/g, "%2D");
     }
     const meta =
-      rec.k === "z"
-        ? '<span class="suche-art">Zeitleiste</span> ' + esc(rec.d) + (rec.c ? " · " + esc(rec.c) : "")
-        : esc(rec.p || "");
+      rec.k === "z" ? "Zeitleiste · " + rec.d + (rec.c ? " · " + rec.c : "") : rec.p || "Seite";
     return (
       '<li class="suche-item">' +
-      (meta ? '<div class="suche-meta">' + meta + "</div>" : "") +
+      '<div class="label">' + esc(meta) + "</div>" +
       '<h2><a href="' + esc(href) + '">' + mark(rec.t.normalize("NFD"), re) + "</a></h2>" +
       (rec.x ? "<p>" + s.html + "</p>" : "") +
+      '<div class="suche-url">' + esc(basis + rec.u) + "</div>" +
       "</li>"
     );
   }
@@ -149,9 +150,9 @@
   function render() {
     const proArt = { "": hits.length, s: 0, z: 0 };
     hits.forEach((i) => proArt[data[i].k]++);
-    chips.forEach((c) => {
-      c.setAttribute("aria-pressed", String(c.dataset.art === state.art));
-      c.querySelector(".suche-n").textContent = hits.length ? zahl(proArt[c.dataset.art]) : "";
+    boxes.forEach((b) => {
+      b.checked = state.art === "" || state.art === b.value;
+      b.parentNode.querySelector(".suche-n").textContent = hits.length ? zahl(proArt[b.value]) : "";
     });
 
     const q = state.q.trim();
@@ -172,14 +173,15 @@
         zahl(data.filter((r) => r.k === "z").length) +
         " Einträge der Zeitleiste.";
     } else if (!hits.length) {
-      status.textContent = "Keine Treffer für „" + q + "“.";
+      status.textContent = "Keine Treffer für »" + q + "«";
     } else {
       const n = sichtbar.length;
       status.textContent =
         (ungefaehr ? "Kein Treffer enthält alle Suchbegriffe. Ähnliche Treffer: " : "") +
         zahl(n) +
         " Treffer" +
-        (state.art && n !== hits.length ? " von " + zahl(hits.length) : "");
+        (state.art && n !== hits.length ? " von " + zahl(hits.length) : "") +
+        " für »" + q + "«";
     }
   }
 
@@ -205,9 +207,10 @@
     state.q = input.value;
     update();
   });
-  chips.forEach((c) =>
-    c.addEventListener("click", () => {
-      state.art = c.dataset.art;
+  boxes.forEach((b) =>
+    b.addEventListener("change", () => {
+      const an = boxes.filter((x) => x.checked).map((x) => x.value);
+      state.art = an.length === boxes.length ? "" : an.length ? an[0] : "-";
       state.gezeigt = PRO_SEITE;
       render();
       writeUrl();

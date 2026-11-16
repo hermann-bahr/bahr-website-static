@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet 
-    xmlns="http://www.w3.org/1999/xhtml"
+<xsl:stylesheet
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     exclude-result-prefixes="#all"
@@ -11,22 +10,19 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="{$project_logo}" sizes="any" />
-        <title><xsl:value-of select="$html_title"/></title>
-
-        <!-- <link rel="canonical" href="{$base_url}" /> -->
+        <title>
+            <xsl:value-of select="$html_title"/>
+            <xsl:if test="$html_title != $project_short_title"> – Hermann Bahr</xsl:if>
+        </title>
         <meta name="description" content="{$project_title}" />
-        
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="{$project_short_title}" />
+        <meta property="og:title" content="{$html_title}" />
         <meta property="og:description" content="{$project_title}" />
-        <!-- <meta property="og:url" content="{$base_url}" /> -->
         <meta property="og:site_name" content="{$project_short_title}" />
-	    <meta property="og:image" content="{$project_logo}" />
-
-        <link href="vendor/bootstrap-5.3.5-dist/css/bootstrap.min.css" rel="stylesheet"/>
-        <link rel="stylesheet" href="vendor/bootstrap-icons/font/bootstrap-icons.min.css" />
-        <link rel="stylesheet" href="css/style.css" type="text/css"></link>
-        
-        
+        <meta property="og:image" content="{$project_logo}" />
+        <!-- Schriften liegen in html/fonts/, die wichtigsten zwei werden vorgeladen -->
+        <link rel="preload" href="fonts/archivo-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
+        <link rel="preload" href="fonts/federo-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin="anonymous"/>
+        <link rel="stylesheet" href="css/style.css" type="text/css"/>
     </xsl:template>
 </xsl:stylesheet>

@@ -331,11 +331,24 @@ Menüpfad:
 `string-join(.//tei:keywords[@scheme='menu']/tei:term, ' › ')`. Wird das Inhaltsverzeichnis gar nicht
 gebraucht, den Aufruf in `build.xml` streichen.
 
-### 5.8 CSS
+### 5.8 Gestaltung
 
-Neue Klassen, die gestaltet werden sollten: `a.ref.sites-all`, `a.ref.legacy`, `a.ref.zeitleiste`
-(zum Beispiel als Hinweis auf externe oder alte Ziele), `table.bibliografie`, `ul.eintraege`,
-`ul.unterseiten`, `span.hi-h3`, `span.hi-h4`.
+Die Website verwendet kein Bootstrap mehr. Die Gestaltung folgt dem Entwurf in
+`design_handoff_bahr_website/` (Fassung 2a, „Raster, Wiener Fassung“) und steht vollständig in
+`html/css/style.css`; die Schriften Archivo und Federo liegen in `html/fonts/`.
+
+- **Seitenraster:** Kopfzeile mit Menü (`html_navbar.xsl`), Inhalt, Randspalte, Fußzeile
+  (`html_footer.xsl`). `editions.xsl` füllt die Randspalte: Unterseiten des Bereichs, Blättern
+  zwischen Einträgen, „Auf dieser Seite“, Permalink, Quelle, Zitieren; bei Bänden der Kritischen
+  Schriften zusätzlich Umschlag, Bandangabe und „PDF laden“ (aus der Tabelle in
+  `kritische-schriften.xml`). Titel mit Ornament und die Apparat-Blöcke stehen in
+  `partials/layout.xsl`.
+- **Menü:** Die Untermenüs sind `<details>` und funktionieren ohne JavaScript; `js/menu.js`
+  schließt sie nur zusätzlich bei Escape oder einem Klick daneben. Auf schmalen Schirmen öffnet
+  der Knopf „Menü“ das Menü über `#menue:target`.
+- **Listen:** `divGen[@type='eintraege']` wird zur zweispaltigen Liste mit Jahr rechts
+  (`ul.eintraege`), reine Menüknoten und die Bildergalerie werden zu Kacheln (`.kacheln`).
+- `toc.html` ist eine einfache Tabelle ohne DataTables.
 
 ## 6. Impressum
 

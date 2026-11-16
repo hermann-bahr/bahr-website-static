@@ -1,174 +1,591 @@
-/* needed for interactive map in listplace.xsl */
-div#map {
-    height: 50vh;
+/* Hermann Bahr – Österreichischer Kritiker europäischer Avantgarden
+   Einziges Stylesheet der Website. Gestaltung nach design_handoff_bahr_website,
+   Fassung 2a („Raster, Wiener Fassung“): Raster mit Randspalte, Doppellinien,
+   Titel in Federo, Text in Archivo. Kein Framework, kein Build-Schritt.
+
+   Inhalt: 1 Schriften · 2 Werte · 3 Grundlagen · 4 Bausteine · 5 Kopf und Menü
+           6 Seitenraster · 7 Inhalt · 8 Listen und Kacheln · 9 Suche
+           10 Zeitleiste · 11 schmale Schirme · 12 Druck */
+
+/* ---------- 1 Schriften (html/fonts/, SIL Open Font License) ---------- */
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/archivo-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+        U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/archivo-latin-ext-wght-normal.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+        U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: "Archivo";
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/archivo-latin-wght-italic.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+        U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: "Archivo";
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/archivo-latin-ext-wght-italic.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+        U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: "Federo";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/federo-latin-400-normal.woff2") format("woff2");
 }
 
-/* Match bootstrap navlink focus outline color. */
-:focus-visible {
-    outline: 0;
-    box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
+/* ---------- 2 Werte ---------- */
+:root {
+    --grund: #f3f2f2;
+    --flaeche: #eae9e9;
+    --text: #201e1d;
+    --akzent: #ec3013;        /* nur große Schrift, Flächen, Marken */
+    --link: #ae1800;          /* Links und kleiner Akzenttext */
+    --link-hover: #dd2b0f;
+    --gedaempft: #605d5d;
+    --linie: rgba(32, 30, 29, .4);
+
+    --schrift: "Archivo", system-ui, sans-serif;
+    --schrift-titel: "Federo", "Archivo", system-ui, sans-serif;
+
+    --regel-gross: 4px double var(--text);   /* unter dem Kopf, über dem Fuß, Abschnitte, Listenkopf */
+    --regel-mittel: 2px solid var(--linie);  /* Randspalte, Zellen */
+    --regel-zeile: 1px solid var(--linie);   /* Zeilen */
+
+    --rand: 32px;
+    --rail: 232px;
 }
 
-.entity {
-    text-decoration: underline dotted;
+/* ---------- 3 Grundlagen ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+    margin: 0 auto;
+    max-width: 1240px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--grund);
+    color: var(--text);
+    font-family: var(--schrift);
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 400;
+}
+h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 8px;
+    font-family: var(--schrift-titel);
+    font-weight: 400;
+    line-height: 1.15;
+}
+h1 {
+    margin: 0 0 20px;
+    font-size: clamp(34px, 6.2vw, 48px);
+    line-height: 1.08;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    overflow-wrap: break-word;
+}
+h1.gross {
+    margin-bottom: 24px;
+    font-size: clamp(44px, 8vw, 64px);
+}
+h2 { font-size: 25px; letter-spacing: .02em; }
+h3 { font-size: 21px; letter-spacing: .02em; }
+h4 { font-size: 18px; letter-spacing: .02em; }
+h5, h6 { font-family: var(--schrift); font-size: 16px; font-weight: 600; }
+p { margin: 0 0 12px; }
+a { color: var(--link); text-underline-offset: 3px; }
+a:hover { color: var(--link-hover); }
+img { max-width: 100%; height: auto; }
+figure { margin: 0 0 16px; }
+figcaption { margin-top: 4px; font-size: 13px; color: var(--gedaempft); }
+small { font-size: 13px; }
+sup, sub { line-height: 0; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }
+::selection { background: rgba(236, 48, 19, .3); }
+[hidden] { display: none !important; }
+
+/* nur für Vorleseprogramme */
+.nur-vorlesen, .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+.skip {
+    position: absolute;
+    left: 8px;
+    top: -60px;
+    z-index: 100;
+    padding: 8px 14px;
+    background: var(--text);
+    color: var(--grund);
+}
+.skip:focus { top: 8px; color: var(--grund); }
+
+/* ---------- 4 Bausteine ---------- */
+/* kleine Versalzeile: Rubriken, Blocktitel der Randspalte, Listenköpfe */
+.label {
+    display: block;
+    margin: 0 0 6px;
+    font-family: var(--schrift);
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gedaempft);
+}
+.rail .label { font-family: var(--schrift-titel); font-size: 13px; }
+
+/* Quadratreihe unter dem Titel */
+.ornament { display: flex; gap: 5px; margin: 0 0 20px; }
+.ornament i { width: 9px; height: 9px; border: 2px solid var(--text); }
+.ornament i:first-child { border: 0; background: var(--akzent); }
+.ornament i:last-child {
+    flex: 1;
+    max-width: 160px;
+    height: 2px;
+    border: 0;
+    background: var(--text);
+    align-self: center;
+    margin-left: 4px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--schrift-titel);
+    font-size: 15px;
+    line-height: 1.2;
+    letter-spacing: .04em;
+    text-decoration: none;
     cursor: pointer;
 }
+.btn-primary { background: var(--akzent); color: var(--grund); font-size: 16px; }
+.btn-primary:hover { background: var(--link-hover); color: var(--grund); }
+.btn-primary:active { background: var(--link); }
+.btn-secondary { border-color: var(--linie); }
+.btn-secondary:hover { background: rgba(32, 30, 29, .07); color: var(--text); }
+.btn-secondary:active { background: rgba(32, 30, 29, .14); }
+.btn-ghost { padding-inline: 4px; color: var(--link); }
+.btn-ghost:hover { background: rgba(236, 48, 19, .1); }
+.btn-block { width: 100%; justify-content: flex-start; text-align: left; }
 
-/* Add buffer above main frame for skip-link focus */
-#main {
-    scroll-margin-top: 1rem;
+.input {
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 10px;
+    border: 1px solid var(--linie);
+    border-radius: 0;
+    background: var(--flaeche);
+    color: var(--text);
+    caret-color: var(--akzent);
+    font: inherit;
+    font-size: 14px;
 }
+.input:hover { border-color: var(--text); }
+.input:focus-visible { border-color: var(--akzent); outline-offset: 0; }
+input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--link); }
 
-/* Stretch the container so the citation block sits just above the footer. */
-main:has(#how-to-cite) {
+/* ---------- 5 Kopf und Menü ---------- */
+.kopf {
     display: flex;
-    flex-direction: column;
+    align-items: baseline;
+    gap: 22px;
+    padding: 14px var(--rand);
+    border-bottom: var(--regel-gross);
 }
-
-main:has(#how-to-cite)>.container {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-main:has(#how-to-cite)>.container> :has(> #how-to-cite) {
-    margin-top: auto;
-}
-
-/* ---- bahr-website-data ---- */
-
-/* Links auf alte Ziele: PDFs unter /sites/all/, alte Zeitleiste, unaufgelöste interne Links */
-a.ref.sites-all::after,
-a.ref.zeitleiste::after,
-a.ref.legacy::after {
-    font-family: "bootstrap-icons";
-    content: "\F1C5"; /* bi-box-arrow-up-right */
-    font-size: .7em;
-    margin-left: .2em;
-    vertical-align: super;
-}
-a.ref.sites-all::after {
-    content: "\F63E"; /* bi-file-earmark-pdf */
-}
-a.ref.legacy {
-    text-decoration-style: dashed;
-}
-
-/* Angaben zur beschriebenen Ausgabe */
-table.bibliografie {
-    width: auto;
-    max-width: 100%;
-}
-table.bibliografie th {
-    font-weight: 600;
+.marke {
+    margin-right: auto;
+    font-family: var(--schrift-titel);
+    font-size: 17px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
     white-space: nowrap;
-    padding-right: 1.5rem;
-    vertical-align: top;
+    color: var(--text);
+    text-decoration: none;
+}
+.marke:hover { color: var(--text); }
+.marke-q { display: inline-flex; gap: 3px; margin-right: 10px; }
+.marke-q i { width: 7px; height: 7px; background: var(--text); }
+.marke-q i:first-child { background: var(--akzent); }
+
+.menue-knopf, .menue-zu { display: none; }
+.menue ul { list-style: none; margin: 0; padding: 0; }
+.menue > ul { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 22px; }
+.menue > ul > li { position: relative; }
+.menue > ul > li > a,
+.menue summary {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.menue > ul > li > a:hover,
+.menue summary:hover { color: var(--link-hover); }
+.menue [aria-current],
+.menue summary.aktuell { color: var(--link); }
+.menue summary { list-style: none; }
+.menue summary::-webkit-details-marker { display: none; }
+.menue summary::after { content: " ▾"; }
+.menue details[open] > summary { font-weight: 800; color: var(--link); }
+/* Untermenü: Kasten unter dem Menüpunkt, schließt an die Doppellinie des Kopfes an */
+.menue .sub {
+    position: absolute;
+    top: calc(100% + 16px);
+    left: -14px;
+    z-index: 20;
+    width: 250px;
+    border: 2px solid var(--text);
+    border-top: 0;
+    background: var(--grund);
+    font-size: 14px;
+}
+.menue > ul > li:nth-last-child(-n+3) .sub { left: auto; right: -14px; }
+.menue .sub a {
+    display: block;
+    padding: 8px 14px;
+    border-bottom: var(--regel-zeile);
+    color: var(--text);
+    text-decoration: none;
+}
+.menue .sub li:last-child a { border-bottom: 0; }
+.menue .sub a:hover,
+.menue .sub a:focus-visible { background: var(--flaeche); color: var(--text); }
+.menue .sub a.ueber {
+    padding-block: 9px;
+    border-bottom: var(--regel-mittel);
+    font-weight: 800;
+    color: var(--link);
 }
 
-/* Listen der Unterseiten und Einträge */
-ul.eintraege,
-ul.unterseiten {
+/* ---------- 6 Seitenraster ---------- */
+.seite {
+    flex: 1;
+    display: grid;
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+}
+/* main steht im Quelltext vor der Randspalte, im Raster rechts von ihr */
+.seite > main {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 28px var(--rand) 36px;
+    scroll-margin-top: 16px;
+}
+.rail {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px 24px 28px var(--rand);
+    border-right: var(--regel-mittel);
+    font-size: 13px;
+    line-height: 1.5;
+}
+.rail-block { margin: 0; padding: 0; border: 0; min-width: 0; }
+.rail-liste {
     list-style: none;
-    padding-left: 0;
-    columns: 2 20rem;
-    column-gap: 2rem;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 14px;
+    line-height: 1.35;
 }
-ul.eintraege li,
-ul.unterseiten li {
-    break-inside: avoid;
-    padding: .2rem 0;
-    border-bottom: 1px solid var(--bs-border-color-translucent);
+.rail-liste a { color: var(--text); }
+.rail-liste a:hover { color: var(--link-hover); }
+.rail-liste a[aria-current] {
+    display: block;
+    margin-left: -12px;
+    padding-left: 8px;
+    border-left: 4px solid var(--akzent);
+    font-weight: 800;
+    text-decoration: none;
 }
-ul.unterseiten {
-    font-size: 1.15rem;
+.permalink { word-break: break-all; }
+.zitat { margin: 0; }
+.rail-bild { margin: 0; }
+.rail-bild img { display: block; width: 100%; background: #d7d3d3; filter: grayscale(1) contrast(1.08); }
+.rail .btn-block { margin: 0; }
+
+.krume { margin: 0 0 20px; font-size: 13px; color: var(--gedaempft); }
+.knopfzeile { display: none; }
+
+.fuss {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    padding: 14px var(--rand);
+    border-top: var(--regel-gross);
+    font-size: 13px;
+}
+.fuss-rechts { display: flex; gap: 20px; margin-left: auto; }
+
+/* ---------- 7 Inhalt ---------- */
+.inhalt p, .inhalt li, .inhalt dd, .inhalt dt, .inhalt blockquote, .inhalt figcaption { max-width: 66ch; }
+.inhalt p, .inhalt li { text-wrap: pretty; }
+.inhalt td p, .inhalt td li { max-width: none; }
+/* Abschnitte beginnen mit einer Doppellinie */
+.inhalt h2 { margin-top: 28px; padding-top: 14px; border-top: var(--regel-gross); }
+.inhalt h3 { margin-top: 24px; }
+.inhalt h4, .inhalt h5, .inhalt h6 { margin-top: 20px; }
+.inhalt > div:first-child > h2:first-child { margin-top: 8px; }
+.inhalt ul, .inhalt ol { margin: 0 0 12px; padding-left: 1.3em; }
+.inhalt li { margin-bottom: 4px; }
+.inhalt dl { margin: 0 0 12px; }
+.inhalt dt { font-weight: 600; }
+.inhalt dd { margin: 0 0 8px 1.3em; }
+.inhalt blockquote {
+    margin: 16px 0;
+    padding: 2px 0 2px 16px;
+    border-left: 4px solid var(--text);
+}
+.inhalt blockquote > :last-child { margin-bottom: 0; }
+.inhalt hr { height: 2px; border: 0; margin: 16px 0; background: var(--linie); }
+.lead,
+.start .inhalt > div:first-child > p:first-child {
+    max-width: 60ch;
+    font-size: 20px;
+    line-height: 1.45;
 }
 
 /* Zwischenüberschriften, die im Original in Absätzen standen */
-span.hi-h3 {
+span.hi-h3, span.hi-h4 {
     display: block;
-    font-size: 1.4rem;
-    font-weight: 500;
-    margin: 1rem 0 .5rem;
+    font-family: var(--schrift-titel);
+    letter-spacing: .02em;
+    line-height: 1.15;
 }
-span.hi-h4 {
-    display: block;
-    font-size: 1.15rem;
-    font-weight: 500;
-    margin: .75rem 0 .4rem;
-}
+span.hi-h3 { margin: 20px 0 8px; font-size: 21px; }
+span.hi-h4 { margin: 16px 0 6px; font-size: 18px; }
 
-/* Bildergalerie (bilder.html) */
-.galerie .card-img-top {
-    aspect-ratio: 3 / 4;
+/* Links auf alte Ziele: PDFs unter /sites/all/, alte Zeitleiste, unaufgelöste interne Links */
+a.ref.sites-all::after,
+a.ref.legacy::after {
+    content: "\2009↗";
+    font-size: .8em;
+    text-decoration: none;
+    display: inline-block;
+}
+a.ref.legacy { text-decoration-style: dashed; }
+
+/* Tabellen */
+.tabelle { margin: 0 0 16px; overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.45; }
+.table caption { caption-side: top; padding: 0 0 6px; text-align: left; font-size: 13px; color: var(--gedaempft); }
+.table th {
+    padding: 8px;
+    border-bottom: var(--regel-mittel);
+    text-align: left;
+    vertical-align: bottom;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gedaempft);
+}
+.table td { padding: 8px; border-bottom: var(--regel-zeile); vertical-align: top; }
+.table th:first-child, .table td:first-child { padding-left: 0; }
+.table tbody tr:hover { background: rgba(32, 30, 29, .04); }
+.table td:first-child { font-variant-numeric: tabular-nums; }
+.table img { display: block; width: 72px; max-width: none; filter: grayscale(1) contrast(1.08); }
+.table figure { margin: 0; }
+.table figcaption { display: none; }
+/* Angaben zur beschriebenen Ausgabe: Bezeichnung links, Wert rechts */
+table.bibliografie { width: auto; max-width: 100%; border-top: var(--regel-mittel); }
+table.bibliografie td:first-child { padding-right: 24px; white-space: nowrap; color: var(--gedaempft); }
+
+/* Anmerkungen */
+.fussnoten { margin-top: 28px; padding-top: 12px; border-top: var(--regel-mittel); font-size: 14px; }
+.fussnoten p { max-width: 66ch; }
+.fussnoten p > a:first-child { font-weight: 600; text-decoration: none; }
+
+/* ---------- 8 Listen und Kacheln ---------- */
+/* Kopfzeile über Listen und Suchtreffern */
+.liste-kopf {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 0;
+    padding: 20px 0 8px;
+    border-bottom: var(--regel-gross);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gedaempft);
+}
+/* Einträge einer Übersicht: zwei Spalten, Titel links, Jahr rechts */
+ul.eintraege {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    columns: 2 280px;
+    column-gap: 32px;
+    column-rule: var(--regel-mittel);
+    font-size: 15px;
+    line-height: 1.45;
+}
+ul.eintraege li { margin: 0; max-width: none; break-inside: avoid; }
+ul.eintraege a {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: var(--regel-zeile);
+    color: var(--text);
+    text-decoration: none;
+}
+ul.eintraege a:hover { background: var(--flaeche); color: var(--text); }
+.e-titel { font-weight: 600; }
+.e-jahr { flex: none; color: var(--gedaempft); font-variant-numeric: tabular-nums; }
+
+/* Kacheln: Unterseiten einer Übersicht, Bildergalerie */
+.kacheln {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0 0 16px;
+    border-top: var(--regel-gross);
+    border-left: var(--regel-mittel);
+}
+.kacheln > a {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    border-right: var(--regel-mittel);
+    border-bottom: var(--regel-mittel);
+    color: var(--text);
+    text-decoration: none;
+}
+.kacheln > a:hover { background: var(--flaeche); color: var(--text); }
+.kacheln .label { margin: 0; }
+.kachel-titel {
+    font-family: var(--schrift-titel);
+    font-size: 21px;
+    line-height: 1.15;
+    letter-spacing: .02em;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+.kacheln img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
     object-fit: cover;
     object-position: top;
+    background: #d7d3d3;
+    filter: grayscale(1) contrast(1.08);
 }
+.galerie { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.galerie img { aspect-ratio: 3 / 4; }
+.galerie .kachel-titel { font-size: 16px; }
 
-/* ---- Zeitleiste (leben.html, xslt/partials/bahr.xsl, js/zeitleiste.js) ---- */
+/* Startseite: Umschläge der Kritischen Schriften */
+.umschlaege {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 6px;
+}
+.inhalt + .label { margin-top: 28px; padding-top: 14px; border-top: var(--regel-gross); }
+.umschlaege a { display: block; aspect-ratio: 2 / 3; background: #d7d3d3; }
+.umschlaege img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.08);
+}
+.umschlaege a:hover img, .umschlaege a:focus-visible img { filter: none; }
+
+/* ---------- 9 Suche (search.html, js/search.js) ---------- */
+.suche-form { display: flex; gap: 8px; margin: 0 0 4px; }
+.suche-feld { flex: 1; }
+.suche-form .input {
+    min-height: 48px;
+    border: 2px solid var(--text);
+    background: var(--grund);
+    font-size: 18px;
+}
+.suche-form .btn { min-width: 120px; justify-content: flex-start; }
+.suche-bereich { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.suche-bereich legend { padding: 0; margin-bottom: 8px; }
+.suche-bereich label { display: flex; gap: 8px; align-items: center; }
+.suche-n { color: var(--gedaempft); font-variant-numeric: tabular-nums; }
+.suche-treffer { list-style: none; margin: 0 0 20px; padding: 0; }
+.suche-item { padding: 14px 0; border-bottom: var(--regel-zeile); }
+.suche-item .label { margin-bottom: 3px; }
+.suche-item h2 { margin: 0 0 4px; font-size: 21px; }
+.suche-item h2 a { color: var(--text); text-decoration: none; }
+.suche-item h2 a:hover { color: var(--link-hover); text-decoration: underline; }
+.suche-item p { margin: 0 0 4px; max-width: 72ch; font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
+.suche-url { font-size: 13px; color: var(--link); word-break: break-all; }
+mark { padding: 0 .1em; background: #ffe0d9; color: inherit; }
+
+/* ---------- 10 Zeitleiste (leben.html, xslt/partials/bahr.xsl, js/zeitleiste.js) ---------- */
 .zl {
     --zl-offset: 12rem; /* Höhe der fixierten Leiste, wird von zeitleiste.js gemessen */
-    --zl-akzent: var(--bs-primary);
-    margin-top: 1.5rem;
+    margin-top: 24px;
 }
-
 /* fixierte Leiste: Suche, Sprungleiste, Kategorien */
 .zl-bar {
     position: sticky;
     top: 0;
     z-index: 10;
-    padding: .6rem 0 .5rem;
-    background: var(--bs-body-bg);
-    border-bottom: 1px solid var(--bs-border-color);
+    padding: 10px 0 8px;
+    background: var(--grund);
+    border-top: var(--regel-gross);
+    border-bottom: var(--regel-mittel);
 }
-.zl-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: .5rem;
-}
-.zl-controls #zl-q {
-    flex: 1 1 12rem;
-    width: auto;
-}
-.zl-controls #zl-jahr {
-    flex: 0 0 auto;
-    width: auto;
-}
-.zl-anzahl {
-    font-size: .875rem;
-    color: var(--bs-secondary-color);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-#zl-reset {
-    padding: 0;
-    white-space: nowrap;
-}
+.zl-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.zl-controls #zl-q { flex: 1 1 12rem; width: auto; }
+.zl-controls #zl-jahr { flex: 0 0 auto; width: auto; }
+.zl-anzahl { font-size: 13px; color: var(--gedaempft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#zl-reset { padding: 4px; font-size: 13px; white-space: nowrap; }
 /* ohne JavaScript bleiben nur die Sprunganker übrig */
 .zl:not(.zl-js) .zl-controls,
-.zl:not(.zl-js) .zl-typen {
-    display: none;
-}
+.zl:not(.zl-js) .zl-typen { display: none; }
 
 /* Sprungleiste: ein Balken pro Jahr */
-.zl-hist {
-    margin-top: .5rem;
-}
+.zl-hist { margin-top: 8px; }
 .zl-balken,
-.zl-dekaden {
-    display: grid;
-    grid-template-columns: repeat(var(--zl-cols), minmax(0, 1fr));
-}
-.zl-balken {
-    height: 3rem;
-    border-bottom: 1px solid var(--bs-border-color);
-}
-.zl-balken a {
-    position: relative;
-    display: block;
-    --f: 1;
-}
+.zl-dekaden { display: grid; grid-template-columns: repeat(var(--zl-cols), minmax(0, 1fr)); }
+.zl-balken { height: 48px; border-bottom: var(--regel-zeile); }
+.zl-balken a { position: relative; display: block; --f: 1; }
 /* blass: alle Einträge des Jahres; kräftig: Anteil der aktuellen Auswahl */
 .zl-balken a::before,
 .zl-balken a::after {
@@ -179,187 +596,156 @@ span.hi-h4 {
     bottom: 0;
     height: var(--h);
     min-height: 2px;
-    border-radius: 1px 1px 0 0;
-    background: var(--zl-akzent);
+    background: var(--akzent);
 }
-.zl-balken a::before {
-    opacity: .2;
-}
-.zl-balken a::after {
-    height: calc(var(--h) * var(--f));
-}
-.zl-balken a.zl-null::after {
-    display: none;
-}
+.zl-balken a::before { opacity: .22; }
+.zl-balken a::after { height: calc(var(--h) * var(--f)); }
+.zl-balken a.zl-null::after { display: none; }
 .zl-balken a:hover,
-.zl-balken a:focus-visible {
-    background: var(--bs-secondary-bg);
-}
-.zl-balken a.zl-aktuell {
-    background: var(--bs-secondary-bg);
-    box-shadow: inset 0 -2px 0 var(--bs-body-color);
-}
-.zl-balken a.zl-aktuell::after {
-    background: var(--bs-body-color);
-}
+.zl-balken a:focus-visible { background: var(--flaeche); }
+.zl-balken a.zl-aktuell { background: var(--flaeche); box-shadow: inset 0 -2px 0 var(--text); }
+.zl-balken a.zl-aktuell::after { background: var(--text); }
 .zl-dekaden a {
-    padding: .1rem 0 0 .2rem;
-    border-left: 1px solid var(--bs-border-color);
-    font-size: .75rem;
+    padding: 2px 0 0 3px;
+    border-left: var(--regel-zeile);
+    font-size: 12px;
     line-height: 1.4;
     font-variant-numeric: tabular-nums;
-    color: var(--bs-secondary-color);
+    color: var(--gedaempft);
     text-decoration: none;
     overflow: hidden;
 }
-.zl-dekaden a:hover {
-    color: var(--bs-body-color);
-    text-decoration: underline;
-}
+.zl-dekaden a:hover { color: var(--text); text-decoration: underline; }
 
 /* Kategorien */
-.zl-typen {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .35rem;
-    margin-top: .5rem;
-}
+.zl-typen { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .zl-chip {
-    padding: .15rem .6rem;
-    border: 1px solid var(--bs-border-color);
-    border-radius: 1rem;
-    background: var(--bs-body-bg);
-    color: var(--bs-body-color);
-    font-size: .8125rem;
+    padding: 3px 10px;
+    border: 1px solid var(--linie);
+    border-radius: 0;
+    background: var(--grund);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
     line-height: 1.5;
     white-space: nowrap;
+    cursor: pointer;
 }
-.zl-chip:hover {
-    border-color: var(--bs-body-color);
-}
-.zl-chip[aria-pressed="true"] {
-    background: var(--bs-body-color);
-    border-color: var(--bs-body-color);
-    color: var(--bs-body-bg);
-}
-.zl-chip .zl-n {
-    margin-left: .15rem;
-    opacity: .65;
-    font-variant-numeric: tabular-nums;
-}
-.zl-chip.zl-null:not([aria-pressed="true"]) {
-    opacity: .45;
-}
+.zl-chip:hover { border-color: var(--text); }
+.zl-chip[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--grund); }
+.zl-chip .zl-n { margin-left: 2px; opacity: .7; font-variant-numeric: tabular-nums; }
+.zl-chip.zl-null:not([aria-pressed="true"]) { opacity: .5; }
 
-.zl-hinweis {
-    margin: .75rem 0 0;
-    font-size: .875rem;
-    color: var(--bs-secondary-color);
-}
-.zl-leer {
-    margin: 2rem 0;
-    text-align: center;
-    color: var(--bs-secondary-color);
-}
+.zl-hinweis { margin: 12px 0 0; max-width: 66ch; font-size: 13px; color: var(--gedaempft); }
+.zl-leer { margin: 32px 0; color: var(--gedaempft); }
 
 /* Jahre und Einträge */
 .zl-jahr,
-.zl-event {
-    scroll-margin-top: var(--zl-offset);
-}
-.zl-jahr > h2 {
-    margin: 2.5rem 0 .5rem;
-    font-size: 1.75rem;
+.zl-event { scroll-margin-top: var(--zl-offset); }
+.inhalt .zl-jahr > h2 {
+    margin: 36px 0 0;
+    padding: 10px 0 8px;
+    font-size: 32px;
     font-variant-numeric: tabular-nums;
 }
 .zl-event {
     display: grid;
-    grid-template-columns: 8.5rem minmax(0, 44rem);
-    column-gap: 1.25rem;
-    padding: .75rem 0;
-    border-top: 1px solid var(--bs-border-color-translucent);
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    column-gap: 20px;
+    padding: 12px 0;
+    border-top: var(--regel-zeile);
 }
-.zl-event[hidden] {
-    display: none;
-}
-.zl-event:target {
-    background: var(--bs-secondary-bg);
-    box-shadow: -.75rem 0 0 var(--bs-secondary-bg), .75rem 0 0 var(--bs-secondary-bg);
-}
-.zl-datum {
-    padding-top: .1rem;
-    font-size: .875rem;
-    color: var(--bs-secondary-color);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-}
-.zl-datum time {
-    white-space: nowrap;
-}
-.zl-inhalt h3 {
-    margin: 0 0 .35rem;
-    font-size: 1.05rem;
+.zl-event:target { background: var(--flaeche); box-shadow: -12px 0 0 var(--flaeche), 12px 0 0 var(--flaeche); }
+.zl-datum { padding-top: 2px; font-size: 13px; color: var(--gedaempft); font-variant-numeric: tabular-nums; }
+.zl-datum time { white-space: nowrap; }
+.inhalt .zl-inhalt h3 {
+    margin: 0 0 6px;
+    font-family: var(--schrift);
+    font-size: 16px;
     font-weight: 600;
+    letter-spacing: 0;
     line-height: 1.35;
 }
-.zl-inhalt h3 a {
-    color: inherit;
-    text-decoration: none;
-}
-.zl-inhalt h3 a:hover {
-    text-decoration: underline;
-}
+.zl-inhalt h3 a { color: inherit; text-decoration: none; }
+.zl-inhalt h3 a:hover { text-decoration: underline; }
 .zl-typ {
-    margin-left: .35rem;
-    padding: .05rem .45rem;
-    border: 1px solid var(--bs-border-color);
-    border-radius: 1rem;
-    font-size: .6875rem;
+    margin-left: 6px;
+    font-size: 11px;
     font-weight: 400;
-    color: var(--bs-secondary-color);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gedaempft);
     white-space: nowrap;
-    vertical-align: .1em;
 }
 .zl-inhalt p,
-.zl-absatz {
-    margin: 0 0 .5rem;
-}
-.zl-inhalt blockquote {
-    margin: .4rem 0 .6rem;
-    padding-left: .9rem;
-    border-left: 3px solid var(--bs-border-color);
-    font-style: italic;
-}
-.zl-inhalt blockquote > p:last-child {
-    margin-bottom: 0;
-}
-.zl-inhalt .zl-quelle {
-    margin-bottom: 0;
-    font-size: .8125rem;
-    color: var(--bs-secondary-color);
-    overflow-wrap: anywhere;
+.zl-absatz { margin: 0 0 8px; max-width: 66ch; }
+.inhalt .zl-inhalt blockquote { margin: 6px 0 10px; padding-left: 14px; border-left: 2px solid var(--linie); }
+.zl-inhalt .zl-quelle { margin-bottom: 0; font-size: 13px; color: var(--gedaempft); overflow-wrap: anywhere; }
+
+/* ---------- 11 schmale Schirme ---------- */
+@media (max-width: 760px) {
+    :root { --rand: 16px; }
+
+    .kopf { flex-wrap: wrap; align-items: center; gap: 0; padding-block: 6px; }
+    .menue-knopf { display: inline-flex; min-height: 44px; }
+    /* das Menü erscheint erst über den Knopf „Menü“ (href="#menue") */
+    .menue { display: none; flex-basis: 100%; padding: 8px 0 10px; }
+    .menue:target { display: block; }
+    .menue-zu { display: inline-flex; min-height: 44px; margin-bottom: 8px; }
+    .menue > ul { display: block; border-top: var(--regel-mittel); }
+    .menue > ul > li { border-bottom: var(--regel-zeile); }
+    .menue > ul > li > a,
+    .menue summary { display: block; padding: 11px 0; font-size: 16px; }
+    .menue .sub,
+    .menue > ul > li:nth-last-child(-n+3) .sub {
+        position: static;
+        width: auto;
+        margin: 0 0 10px;
+        border: 0;
+        border-left: 4px solid var(--akzent);
+    }
+    .menue .sub a { padding: 11px 14px; }
+
+    /* eine Spalte, die Randspalte folgt als abgesetzter Block unter dem Inhalt */
+    .seite { display: block; }
+    .seite > main { padding: 20px var(--rand) 24px; }
+    .rail {
+        margin: 0 var(--rand);
+        padding: 16px 0 24px;
+        border-right: 0;
+        border-top: var(--regel-mittel);
+        gap: 16px;
+    }
+    .rail-liste a { display: block; padding: 6px 0; }
+    .rail-liste a[aria-current] { margin-left: 0; }
+    .rail-bild, .rail > .btn-block { display: none; }
+    .knopfzeile { display: flex; gap: 8px; margin: 0 0 18px; }
+    .knopfzeile .btn { min-height: 44px; }
+    .knopfzeile .btn-primary { flex: 1; justify-content: flex-start; }
+
+    .lead, .start .inhalt > div:first-child > p:first-child { font-size: 18px; line-height: 1.5; }
+    .kacheln, .galerie { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kacheln:not(.galerie) { grid-template-columns: 1fr; }
+    .umschlaege { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .suche-form .btn { min-width: 0; }
+    .fuss a { padding: 6px 0; }
+    .fuss-rechts { margin-left: 0; }
+
+    .zl-balken { height: 36px; }
+    .zl-balken a::before,
+    .zl-balken a::after { left: 0; right: 1px; }
+    /* Kategorien in einer Zeile zum Wischen, damit die Leiste niedrig bleibt */
+    .zl-typen { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .zl-chip { min-height: 36px; }
+    .zl-event { grid-template-columns: minmax(0, 1fr); }
+    .zl-datum { margin-bottom: 2px; }
 }
 
-@media (max-width: 575.98px) {
-    .zl-balken {
-        height: 2.25rem;
-    }
-    .zl-balken a::before,
-    .zl-balken a::after {
-        left: 0;
-        right: 1px;
-    }
-    /* Kategorien in einer Zeile zum Wischen, damit die Leiste niedrig bleibt */
-    .zl-typen {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        scrollbar-width: none;
-    }
-    .zl-event {
-        grid-template-columns: minmax(0, 1fr);
-    }
-    .zl-datum {
-        text-align: left;
-        margin-bottom: .15rem;
-    }
+/* ---------- 12 Druck ---------- */
+@media print {
+    body { max-width: none; background: #fff; }
+    .kopf .menue, .menue-knopf, .skip, .knopfzeile, .zl-bar, .suche-form { display: none; }
+    .seite { display: block; }
+    .rail { border: 0; border-top: var(--regel-mittel); padding: 12px var(--rand); }
+    a { color: inherit; }
 }

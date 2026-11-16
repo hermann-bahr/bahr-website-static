@@ -1,48 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:tei="http://www.tei-c.org/ns/1.0"
+<!-- Kopfzeile: Marke und Hauptmenü aus data/menu.xml (xslt/make_menu.xsl).
+     Die Untermenüs sind <details>, sie funktionieren ohne JavaScript und mit der Tastatur;
+     js/menu.js schließt sie nur zusätzlich bei Escape und Klick daneben.
+     Auf schmalen Schirmen blendet der Knopf „Menü“ das Menü über #menue:target ein. -->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xs="http://www.w3.org/2001/XMLSchema" exclude-result-prefixes="#all" version="2.0">
     <xsl:template name="nav_bar">
-        <a class="visually-hidden-focusable" href="#main">Zum Inhalt springen</a>
-        <header>
-            <nav aria-label="Primary" class="navbar navbar-expand-lg bg-body-tertiary">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="index.html">
-                        <xsl:value-of select="$project_short_title"/>
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <!-- Hauptmenü der alten Website, aus data/menu.xml (xslt/make_menu.xsl) -->
-                            <xsl:for-each select="doc('../../data/menu.xml')/menus/menu[@name = 'main-menu']/item">
-                                <xsl:variable name="sub" select="item[@eintrag = 'false']"/>
-                                <xsl:choose>
-                                    <xsl:when test="$sub">
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <xsl:value-of select="label"/>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li><a class="dropdown-item" href="{@href}"><xsl:value-of select="label"/></a></li>
-                                                <li><hr class="dropdown-divider"/></li>
-                                                <xsl:for-each select="$sub">
-                                                    <li><a class="dropdown-item" href="{@href}"><xsl:value-of select="label"/></a></li>
-                                                </xsl:for-each>
-                                            </ul>
-                                        </li>
-                                    </xsl:when>
-                                    <xsl:otherwise>
-                                        <li class="nav-item"><a class="nav-link" href="{@href}"><xsl:value-of select="label"/></a></li>
-                                    </xsl:otherwise>
-                                </xsl:choose>
-                            </xsl:for-each>
-                            <li class="nav-item"><a class="nav-link" href="search.html"><i class="bi bi-search" aria-hidden="true"/> Suche</a></li>
-                        </ul>
-                    </div>
-                </div>
+        <!-- id des aktuellen Hauptmenüpunkts, 'search' für die Suche -->
+        <xsl:param name="current" as="xs:string" select="''"/>
+        <a class="skip" href="#main">Zum Inhalt springen</a>
+        <header class="kopf">
+            <a class="marke" href="index.html">
+                <span class="marke-q" aria-hidden="true"><i></i><i></i><i></i></span>
+                <xsl:text>Hermann Bahr</xsl:text>
+            </a>
+            <a class="btn btn-secondary menue-knopf" href="#menue">Menü</a>
+            <nav id="menue" class="menue" aria-label="Hauptmenü">
+                <a class="btn btn-secondary menue-zu" href="#">Menü schließen</a>
+                <ul>
+                    <xsl:for-each select="doc('../../data/menu.xml')/menus/menu[@name = 'main-menu']/item">
+                        <xsl:variable name="sub" select="item[@eintrag = 'false']"/>
+                        <li>
+                            <xsl:choose>
+                                <xsl:when test="$sub">
+                                    <details name="menue">
+                                        <summary>
+                                            <xsl:if test="@id = $current"><xsl:attribute name="class" select="'aktuell'"/></xsl:if>
+                                            <xsl:value-of select="label"/>
+                                        </summary>
+                                        <ul class="sub">
+                                            <li><a class="ueber" href="{@href}"><xsl:value-of select="label"/> · Übersicht</a></li>
+                                            <xsl:for-each select="$sub">
+                                                <li><a href="{@href}"><xsl:value-of select="label"/></a></li>
+                                            </xsl:for-each>
+                                        </ul>
+                                    </details>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <a href="{@href}">
+                                        <xsl:if test="@id = $current"><xsl:attribute name="aria-current" select="'true'"/></xsl:if>
+                                        <xsl:value-of select="label"/>
+                                    </a>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </li>
+                    </xsl:for-each>
+                    <li>
+                        <a href="search.html">
+                            <xsl:if test="$current = 'search'"><xsl:attribute name="aria-current" select="'page'"/></xsl:if>
+                            <xsl:text>Suche</xsl:text>
+                        </a>
+                    </li>
+                </ul>
             </nav>
         </header>
     </xsl:template>
