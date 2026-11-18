@@ -78,6 +78,12 @@
             <xsl:apply-templates/>
         </a>
     </xsl:template>
+    <!-- das alte Impressum ist durch das ACDH-Impressum (imprint.html) ersetzt -->
+    <xsl:template match="tei:ref[@target = 'impressum-und-datenschutz.xml']">
+        <a class="ref {@type}" href="imprint.html">
+            <xsl:apply-templates/>
+        </a>
+    </xsl:template>
     <!-- Drupal-Kontaktformular gibt es nicht mehr -->
     <xsl:template match="tei:ref[@type = 'kontaktformular']">
         <a class="ref kontaktformular" href="mailto:{$contact_email}">

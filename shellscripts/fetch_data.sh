@@ -20,5 +20,5 @@ mv "./${DATA_DIR}/mapping.csv" ./data/mapping.csv
 mv "./${DATA_DIR}/raw/files" ./html/files
 rm -rf "./${DATA_DIR}"
 
-# Kein ./shellscripts/dl_imprint.sh: Impressum und Barrierefreiheit kommen aus den Daten
-# (impressum-und-datenschutz.xml, barrierefreiheit.xml). Siehe ANLEITUNG.md, Abschnitt 6.
+# ACDH-Impressum (imprint.html) statt impressum-und-datenschutz.xml aus den Daten. Siehe ANLEITUNG.md, Abschnitt 6.
+./shellscripts/dl_imprint.sh

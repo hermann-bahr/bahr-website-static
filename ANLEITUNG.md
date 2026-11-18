@@ -352,14 +352,13 @@ Die Website verwendet kein Bootstrap mehr. Die Gestaltung folgt dem Entwurf in
 
 ## 6. Impressum
 
-Der Cookiecutter lädt mit `dl_imprint.sh` das ACDH-Impressum (über `redmine_id`). Die alte Website
-hat ein eigenes Impressum (`impressum-und-datenschutz.xml`) und eine Erklärung zur Barrierefreiheit
-(`barrierefreiheit.xml`). Beide werden über `editions.xsl` gerendert und stehen im Footer-Menü.
+Die Website verwendet das ACDH-Impressum (Redmine-Issue 29434). `fetch_data.sh` ruft
+`dl_imprint.sh` auf, das die deutsche und englische Fassung von `imprint.acdh.oeaw.ac.at` nach
+`data/imprint.xml` lädt; `imprint.xsl` (in `build.xml`) macht daraus `imprint.html`.
 
-- **Hosting nicht beim ACDH:** `dl_imprint.sh` und `imprint.xsl` weglassen, wie im mitgelieferten
-  `fetch_data.sh`. Den Inhalt von `impressum-und-datenschutz.xml` für den neuen Betreiber anpassen.
-- **Hosting beim ACDH:** `dl_imprint.sh` wieder in `fetch_data.sh` aufnehmen, `imprint.xsl` in
-  `build.xml` lassen und `impressum-und-datenschutz.xml` aus dem Footer nehmen.
+Das alte Impressum der Drupal-Website (`impressum-und-datenschutz.xml`, mit Projektteam und
+Anschrift Uni Wien) wird weiter erzeugt, steht aber nicht mehr im Footer. Verweise darauf in den
+Daten (etwa in `barrierefreiheit.xml`) zeigen auf `imprint.html` (`bahr.xsl`).
 
 ## 7. Optional
 

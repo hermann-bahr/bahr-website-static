@@ -24,6 +24,12 @@
         <param name="DATAHASH" expression="${DATAHASH}"/>
         <classpath location="${basedir}/saxon/saxon9he.jar"/>
     </xslt>
+    <!-- ACDH-Impressum, data/imprint.xml kommt von shellscripts/dl_imprint.sh -->
+    <xslt in="./data/imprint.xml" out="${target}/imprint.html" style="./xslt/imprint.xsl">
+        <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+        <param name="DATAHASH" expression="${DATAHASH}"/>
+        <classpath location="${basedir}/saxon/saxon9he.jar"/>
+    </xslt>
     <xslt in="${index}" out="${target}/toc.html" style="./xslt/toc.xsl">
         <factory name="net.sf.saxon.TransformerFactoryImpl"/>
         <param name="DATAHASH" expression="${DATAHASH}"/>

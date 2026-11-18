@@ -6,8 +6,10 @@
     version="2.0">
     <xsl:template name="html_footer">
         <footer class="fuss">
-            <!-- Footer-Menü der alten Website: Impressum und Datenschutz, Barrierefreiheit -->
-            <xsl:for-each select="doc('../../data/menu.xml')/menus/menu[@name = 'footer']/item">
+            <!-- ACDH-Impressum (imprint.xsl) statt „Impressum und Datenschutz“ der alten Website -->
+            <a href="imprint.html">Impressum</a>
+            <!-- übriges Footer-Menü der alten Website: Barrierefreiheit -->
+            <xsl:for-each select="doc('../../data/menu.xml')/menus/menu[@name = 'footer']/item[@id != 'impressum-und-datenschutz']">
                 <a href="{@href}"><xsl:value-of select="label"/></a>
             </xsl:for-each>
             <!-- „Kontakt“ war ein Drupal-Formular ohne Datei, jetzt mailto -->
