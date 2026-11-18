@@ -36,8 +36,11 @@
     <xsl:variable name="abschnitte" select="/tei:TEI/tei:text/tei:body/tei:div[normalize-space(tei:head)][not(bahr:autorzeile(tei:head))]"/>
     <!-- Kritische Schriften: Zeile der Bandübersicht (Umschlag, Bandnummer, Herausgeber), die auf diese Seite zeigt -->
     <xsl:variable name="band" select="(doc('../data/editions/kritische-schriften.xml')//tei:row[.//tei:ref/@target = $teiSource])[1]"/>
-    <!-- das PDF des Bandes: der erste PDF-Link der Seite; nur bei Bänden, sonst wäre es irgendein PDF -->
-    <xsl:variable name="pdf" select="if ($band) then (.//tei:body//tei:ref[@type = 'sites-all'][ends-with(lower-case(@target), '.pdf')])[1] else ()"/>
+    <!-- das PDF des Bandes: nur ein Link auf /sites/all/ks/{Bandnummer}-….pdf, nicht irgendein PDF der Seite
+         (etwa ein Zeitungsartikel). Gibt es zwei Auflagen, gewinnt die zweite (…-2.pdf). Sonst kein Knopf. -->
+    <xsl:variable name="band_nr" select="replace(normalize-space(($band/tei:cell)[1]), '\D', '')"/>
+    <xsl:variable name="pdf_kandidaten" select="if ($band_nr) then .//tei:body//tei:ref[matches(@target, concat('/sites/all/ks/', $band_nr, '-[^/]*\.pdf$'), 'i')] else ()"/>
+    <xsl:variable name="pdf" select="($pdf_kandidaten[matches(@target, '-2\.pdf$', 'i')], $pdf_kandidaten)[1]"/>
 
     <xsl:template match="/">
         <html lang="{$default_lang}">

@@ -44,6 +44,10 @@
                                 </xsl:otherwise>
                             </xsl:choose>
                         </li>
+                        <!-- externer Menüpunkt, kommt nicht aus data/menu.xml -->
+                        <xsl:if test="@id = 'kritische-schriften'">
+                            <li><a href="https://bahr-textverzeichnis.acdh.oeaw.ac.at">Textverzeichnis</a></li>
+                        </xsl:if>
                     </xsl:for-each>
                     <li>
                         <a href="search.html">
