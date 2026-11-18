@@ -151,3 +151,6 @@ desktop.ini
 html/files/
 data/menu.xml
 data/mapping.csv
+
+# Logo-Vorlagen (Affinity, SVG, JPG), nicht für die Website
+logo-quellen/

@@ -60,7 +60,10 @@
                     <main id="main" tabindex="-1">
                         <xsl:choose>
                             <xsl:when test="$ist_start">
-                                <p class="krume">Österreichischer Kritiker europäischer Avantgarden · 1863–1934</p>
+                                <p class="start-logo">
+                                    <img src="img/bahr-logo.jpg" width="2200" height="1200"
+                                        alt="Hermann Bahr, Österreichischer Kritiker europäischer Avantgarden"/>
+                                </p>
                             </xsl:when>
                             <xsl:otherwise>
                                 <nav class="krume" aria-label="Brotkrumen">

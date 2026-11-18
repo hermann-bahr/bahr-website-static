@@ -343,6 +343,9 @@ input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--link); }
 .rail .btn-block { margin: 0; }
 
 .krume { margin: 0 0 20px; font-size: 13px; color: var(--gedaempft); }
+/* Startseite: Logo (img/bahr-logo.jpg) über dem Titel */
+.start-logo { margin: 0 0 24px; }
+.start-logo img { display: block; width: 100%; height: auto; }
 .knopfzeile { display: none; }
 
 .fuss {
