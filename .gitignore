@@ -149,6 +149,7 @@ desktop.ini
 .DS_Store
 # bahr-website-data
 html/files/
+html/ks/
 data/menu.xml
 data/mapping.csv
 

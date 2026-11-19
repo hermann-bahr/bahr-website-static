@@ -10,7 +10,7 @@
     <xsl:param name="github_url">https://github.com/hermann-bahr/bahr-website-static</xsl:param>
     <xsl:param name="html_title">Bahr-Website</xsl:param>
     <xsl:param name="DATAHASH" select="''"/>
-    <xsl:param name="base_url">https://bahr.univie.ac.at/</xsl:param>
+    <xsl:param name="base_url">https://bahr.acdh.oeaw.ac.at/</xsl:param>
     <!-- ersetzt das Drupal-Kontaktformular (/contact) in Footer und Text -->
     <xsl:param name="contact_email">martin.anton.mueller@oeaw.ac.at</xsl:param>
     <xsl:param name="data_repo">https://github.com/hermann-bahr/bahr-website-data</xsl:param>
